@@ -1,1 +1,44 @@
-<h1>ddd</h1>
+<h1 id="data" style="display: none"><%= @data %></h1>
+
+<div id="chart-1" style="height: 900px;"></div>
+
+<script>
+  var foo = JSON.parse(document.getElementById("data").innerHTML);
+
+  data = [];
+
+  var us_actual_data = {};
+  var unchecked_data = {};
+  var hct_data = {};
+  var it_data = {};
+  var skt_data = {};
+
+  foo.forEach(function(element){
+  	us_actual_data[`${element.Date}`] = element.US_Actual;
+  	unchecked_data[`${element.Date}`] = element.Unchecked;
+  	hct_data[`${element.Date}`] = element.Hubei_China_Trajectory; 
+  	it_data[`${element.Date}`] = element.Italy_Trajectory;
+  	skt_data[`${element.Date}`] = element.South_Korea_Trajectory;
+  });
+
+  var US_Actual = {};
+  US_Actual["name"] = "US Actual";
+  US_Actual["data"] = us_actual_data;
+  var Unchecked = {};
+  Unchecked["name"] = "Unchecked";
+  Unchecked["data"] = unchecked_data;
+  var Hubei_China_Trajectory = {};
+  Hubei_China_Trajectory["name"] = "Hubei China Trajectory";
+  Hubei_China_Trajectory["data"] = hct_data;
+  var Italy_Trajectory = {};
+  Italy_Trajectory["name"] = "Italy Trajectory";
+  Italy_Trajectory["data"] = it_data;
+  var South_Korea_Trajectory = {};
+  South_Korea_Trajectory["name"] = "South Korea Trajectory";
+  South_Korea_Trajectory["data"] = skt_data;
+
+  data.push(US_Actual, Unchecked, Hubei_China_Trajectory, Italy_Trajectory, South_Korea_Trajectory);
+
+  new Chartkick.LineChart("chart-1", data, {min: 0, max: 1000000})
+</script>
+
