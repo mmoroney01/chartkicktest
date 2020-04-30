@@ -9,34 +9,39 @@ require 'csv'
 require 'date'
 
 
-foo = CSV.read("COVID-Projections--US_Population-Scaled--SKorea_ChinaHubei_Italy--LogisticModels--2020_04_01_fewerDataPoints.csv")
+foo = CSV.read("COVID-Projections--US_Population-Scaled--SKorea_ChinaHubei_Italy--LogisticModels--2020_04_27.csv")
 
-foo.drop(1).each do |arr|
+foo.drop(2).each do |arr|
   if arr[1] != nil
-    us_actual = arr[1].to_i
+    cases = arr[1].to_i
   else
-    us_actual = nil  
+    cases = nil  
   end
   if arr[2] != nil
-    unchecked = arr[2].to_f
+    gompertz = arr[2].to_f
   else
-    unchecked = nil
+    gompertz = nil
   end
   if arr[3] != nil
-    it = arr[3].to_f
+    new_cases = arr[3].to_f
   else
-    it = nil  
+    new_cases = nil  
   end
   if arr[4] != nil
-    hct = arr[4].to_f
+    italy = arr[4].to_f
   else
-    hct = nil  
+    italy = nil  
   end
   if arr[5] != nil
-    skt = arr[5].to_f
+    germany = arr[5].to_f
   else
-    skt = nil  
+    germany = nil  
+  end
+  if arr[6] != nil
+    spain = arr[6].to_f
+  else
+    spain = nil  
   end
   
-  Datum.create(Date: Date.strptime(arr[0], '%m/%d/%Y'), US_Actual: us_actual, Unchecked: unchecked, Italy_Trajectory: it, Hubei_China_Trajectory: hct, South_Korea_Trajectory: skt)
+  Datum.create(Date: Date.strptime(arr[0], '%m/%d/%Y'), Cases: cases, Gompertz: gompertz, New_Cases: new_cases, Italy_Trajectory: italy, Germany_Trajectory: germany, Spain_Trajectory: spain)
 end

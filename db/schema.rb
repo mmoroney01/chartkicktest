@@ -17,11 +17,12 @@ ActiveRecord::Schema.define(version: 2020_04_20_173205) do
 
   create_table "data", force: :cascade do |t|
     t.datetime "Date"
-    t.integer "US_Actual"
-    t.float "Unchecked"
+    t.integer "Cases"
+    t.float "Gompertz"
+    t.float "New_Cases"
     t.float "Italy_Trajectory"
-    t.float "Hubei_China_Trajectory"
-    t.float "South_Korea_Trajectory"
+    t.float "Germany_Trajectory"
+    t.float "Spain_Trajectory"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

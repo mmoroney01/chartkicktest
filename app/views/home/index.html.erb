@@ -1,44 +1,93 @@
-<h1 id="data" style="display: none"><%= @data %></h1>
-
-<div id="chart-1" style="height: 900px;"></div>
-
+<html>
+<head>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+<div id="dataToUse" style="display: none;"><%= @dataToUse %></div>
 <script>
-  var foo = JSON.parse(document.getElementById("data").innerHTML);
+google.charts.load('current', {
+  callback: drawDashboard,
+  packages: ['corechart', 'controls']
+});
 
-  data = [];
+function drawDashboard() {
+  var mew = document.getElementById('dataToUse');
+  var two = mew.innerHTML;
+  var tri = JSON.parse(two);
+  var rows = new Array();
 
-  var us_actual_data = {};
-  var unchecked_data = {};
-  var hct_data = {};
-  var it_data = {};
-  var skt_data = {};
-
-  foo.forEach(function(element){
-  	us_actual_data[`${element.Date}`] = element.US_Actual;
-  	unchecked_data[`${element.Date}`] = element.Unchecked;
-  	hct_data[`${element.Date}`] = element.Hubei_China_Trajectory; 
-  	it_data[`${element.Date}`] = element.Italy_Trajectory;
-  	skt_data[`${element.Date}`] = element.South_Korea_Trajectory;
+  tri.forEach(function(datum) {
+    var foo = {"c":[{"v":datum.Date},{"v":datum.Cases},{"v":datum.Gompertz},{"v":datum.New_Cases},{"v":datum.Italy_Trajectory},{"v":datum.Germany_Trajectory},{"v":datum.Spain_Trajectory}]};
+    rows.push(foo);
   });
 
-  var US_Actual = {};
-  US_Actual["name"] = "US Actual";
-  US_Actual["data"] = us_actual_data;
-  var Unchecked = {};
-  Unchecked["name"] = "Unchecked";
-  Unchecked["data"] = unchecked_data;
-  var Hubei_China_Trajectory = {};
-  Hubei_China_Trajectory["name"] = "Hubei China Trajectory";
-  Hubei_China_Trajectory["data"] = hct_data;
-  var Italy_Trajectory = {};
-  Italy_Trajectory["name"] = "Italy Trajectory";
-  Italy_Trajectory["data"] = it_data;
-  var South_Korea_Trajectory = {};
-  South_Korea_Trajectory["name"] = "South Korea Trajectory";
-  South_Korea_Trajectory["data"] = skt_data;
+  var jsonData = {
+    "cols":[
+      {"label":"Data", "type":"string"},
+      {"label":"Cases", "type":"number"},      
+      {"label":"Gompertz", "type":"number"},
+      {"label":"New Cases", "type":"number"},
+      {"label":"Spain", "type":"number"},
+      {"label":"Italy", "type":"number"},
+      {"label":"Germany", "type":"number"}
+    ],
+    "rows":rows
+  };
 
-  data.push(US_Actual, Unchecked, Hubei_China_Trajectory, Italy_Trajectory, South_Korea_Trajectory);
+  var data = new google.visualization.DataTable(jsonData);
+  var view = new google.visualization.DataView(data);
 
-  new Chartkick.LineChart("chart-1", data, {min: 0, max: 1000000})
+  view.setColumns([{
+    calc: function (data, row) {
+      return new Date(data.getValue(row, 0))
+    },
+    type: 'date',
+    label: 'Data'
+  }, 1, 2, 3, 4, 5, 6]);
+
+  var dataRangeSlider = new google.visualization.ControlWrapper({
+    controlType: 'DateRangeFilter',
+    containerId: 'filter_div',
+    options: {
+      filterColumnLabel: 'Data'
+    }
+  });
+
+  google.visualization.events.addListener(dataRangeSlider, 'ready', function () {
+    var state = dataRangeSlider.getState();
+    console.log(state.lowValue, state.highValue);
+  });
+
+  var lineChart = new google.visualization.ChartWrapper({
+    chartType: 'LineChart',
+    containerId: 'chart_div',
+    options: {
+      colors: ['#000000', '#ac76e2', '#dd8585', '#dd9933', '#81d742', '#dd3333'],
+      width: 1200,
+      height: 900,
+      vAxis: { title: "Total US Cases: Reported Cases Through March 31 Plus Projections", minValue: 0, maxValue: 160, textStyle:{ fontSize:16 }, titleTextStyle:{ fontSize: 20 }, gridlines:{ color:'transparent'}},
+      hAxis: { title: "Reported US Cases Compared to the Spain, Germany, and Italy Trajectories", titleTextStyle:{ fontSize: 20 }, textStyle:{ fontSize: 16 },gridlines:{color:'transparent'}},
+      legend: { position: 'top'},
+      chartArea: {
+        width: '100%',
+        height: '80%',
+        left: '15%'
+      },
+      curveType: 'function',
+      pointSize: 3,
+      focusTarget: 'category'
+    }
+  });
+
+  var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
+  dashboard.bind(dataRangeSlider, lineChart);
+  dashboard.draw(view);
+}
 </script>
 
+  <div id="dashboard_div">
+    <div id="filter_div"></div>
+    <div id="chart_div"></div>
+  </div>
+</body>
+</html>
